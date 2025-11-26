@@ -5,7 +5,8 @@ import '../config/api.dart';
 
 class AuthService {
   Future<Map<String, dynamic>> login(String email, String password) async {
-    final url = Uri.parse(ApiConfig.baseUrl + '/login');
+    final url = Uri.parse("${ApiConfig.baseUrl}/login");
+
     final response = await http.post(
       url,
       headers: {
@@ -17,17 +18,15 @@ class AuthService {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', data['token']);
+
       return data;
-    } else if (response.statusCode == 401) {
-      throw Exception('Unauthorized: Invalid credentials');
-    } else if (response.statusCode == 422) {
-      throw Exception('Validation error: Please check your input');
-    } else {
-      final error = jsonDecode(response.body);
-      throw Exception(error.toString());
     }
+
+    final errorData = jsonDecode(response.body);
+    throw Exception(errorData['message'] ?? "Login failed");
   }
 
   Future<Map<String, dynamic>> register(
@@ -36,7 +35,8 @@ class AuthService {
     String password,
     String confirmPassword,
   ) async {
-    final url = Uri.parse(ApiConfig.baseUrl + '/register');
+    final url = Uri.parse("${ApiConfig.baseUrl}/register");
+
     final response = await http.post(
       url,
       headers: {
@@ -51,18 +51,24 @@ class AuthService {
       }),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final data = jsonDecode(response.body);
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', data['token']);
+
       return data;
-    } else if (response.statusCode == 401) {
-      throw Exception('Unauthorized: Registration failed');
-    } else if (response.statusCode == 422) {
-      throw Exception('Validation error: Please check your input');
-    } else {
-      final error = jsonDecode(response.body);
-      throw Exception(error.toString());
     }
+
+    final errorData = jsonDecode(response.body);
+
+    if (errorData['errors'] != null) {
+      final firstKey = errorData['errors'].keys.first;
+      final firstMsg = errorData['errors'][firstKey][0];
+
+      throw Exception(firstMsg);
+    }
+
+    throw Exception(errorData['message'] ?? "Registration failed");
   }
 }

@@ -86,13 +86,23 @@ class _RegisterPageState extends State<RegisterPage> {
                             );
                             return;
                           }
-                          final success = await authProvider.register(
-                            nameController.text,
-                            emailController.text,
+
+                          final error = await authProvider.register(
+                            nameController.text.trim(),
+                            emailController.text.trim(),
                             passwordController.text,
                             confirmPasswordController.text,
                           );
-                          if (success) {
+
+                          if (error == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Berhasil mendaftar, silakan login',
+                                ),
+                              ),
+                            );
+
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -100,9 +110,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Gagal mendaftar')),
-                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(error)));
                           }
                         },
                         child: const Text('REGISTER'),

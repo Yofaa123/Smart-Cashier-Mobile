@@ -59,11 +59,11 @@ class _LoginPageState extends State<LoginPage> {
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
                         onPressed: () async {
-                          final success = await authProvider.login(
-                            emailController.text,
+                          final error = await authProvider.login(
+                            emailController.text.trim(),
                             passwordController.text,
                           );
-                          if (success) {
+                          if (error == null) {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
@@ -71,17 +71,16 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Email atau password salah'),
-                              ),
-                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(error)));
                           }
                         },
                         child: const Text('LOGIN'),
                       );
               },
             ),
+
             const SizedBox(height: 16),
             TextButton(
               onPressed: () {
