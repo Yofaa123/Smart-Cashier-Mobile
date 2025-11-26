@@ -27,15 +27,27 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> register(String name, String email, String password) async {
+  Future<bool> register(
+    String name,
+    String email,
+    String password,
+    String confirmPassword,
+  ) async {
     isLoading = true;
     notifyListeners();
     try {
-      final data = await AuthService().register(name, email, password);
+      final data = await AuthService().register(
+        name,
+        email,
+        password,
+        confirmPassword,
+      );
       user = UserModel.fromJson(data['user']);
       token = data['token'];
+
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token!);
+
       isLoading = false;
       notifyListeners();
       return true;

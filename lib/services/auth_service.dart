@@ -8,7 +8,10 @@ class AuthService {
     final url = Uri.parse(ApiConfig.baseUrl + '/login');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
       body: jsonEncode({'email': email, 'password': password}),
     );
 
@@ -22,7 +25,8 @@ class AuthService {
     } else if (response.statusCode == 422) {
       throw Exception('Validation error: Please check your input');
     } else {
-      throw Exception('Server error: ${response.statusCode}');
+      final error = jsonDecode(response.body);
+      throw Exception(error.toString());
     }
   }
 
@@ -30,16 +34,20 @@ class AuthService {
     String name,
     String email,
     String password,
+    String confirmPassword,
   ) async {
     final url = Uri.parse(ApiConfig.baseUrl + '/register');
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
       body: jsonEncode({
         'name': name,
         'email': email,
         'password': password,
-        'password_confirmation': password,
+        'password_confirmation': confirmPassword,
       }),
     );
 
@@ -53,7 +61,8 @@ class AuthService {
     } else if (response.statusCode == 422) {
       throw Exception('Validation error: Please check your input');
     } else {
-      throw Exception('Server error: ${response.statusCode}');
+      final error = jsonDecode(response.body);
+      throw Exception(error.toString());
     }
   }
 }

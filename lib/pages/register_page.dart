@@ -90,6 +90,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             nameController.text,
                             emailController.text,
                             passwordController.text,
+                            confirmPasswordController.text,
                           );
                           if (success) {
                             Navigator.pushReplacement(
