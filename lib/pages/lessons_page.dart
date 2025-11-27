@@ -17,12 +17,20 @@ class LessonsPage extends StatefulWidget {
 
 class _LessonsPageState extends State<LessonsPage> {
   List lessons = [];
+  List filteredLessons = [];
   bool isLoading = true;
+  final searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     fetchLessons();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchLessons() async {
@@ -38,14 +46,31 @@ class _LessonsPageState extends State<LessonsPage> {
       final data = jsonDecode(response.body);
       setState(() {
         lessons = data['lessons'] ?? [];
+        filteredLessons = lessons;
         isLoading = false;
       });
     } else {
       setState(() {
         lessons = [];
+        filteredLessons = [];
         isLoading = false;
       });
     }
+  }
+
+  void filterLessons(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredLessons = lessons;
+      } else {
+        filteredLessons = lessons.where((lesson) {
+          final title = lesson['title'].toString().toLowerCase();
+          final level = lesson['level'].toString().toLowerCase();
+          final searchQuery = query.toLowerCase();
+          return title.contains(searchQuery) || level.contains(searchQuery);
+        }).toList();
+      }
+    });
   }
 
   @override
@@ -54,28 +79,45 @@ class _LessonsPageState extends State<LessonsPage> {
       appBar: AppBar(title: const Text('Lessons')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : lessons.isEmpty
-            ? const Center(child: Text('Belum ada lesson'))
-            : ListView.builder(
-                itemCount: lessons.length,
-                itemBuilder: (context, index) {
-                  final lesson = lessons[index];
-                  return ListTile(
-                    title: Text(lesson['title']),
-                    subtitle: Text(lesson['level']),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => LessonDetailPage(lesson: lesson),
-                        ),
-                      );
-                    },
-                  );
-                },
+        child: Column(
+          children: [
+            TextField(
+              controller: searchController,
+              decoration: const InputDecoration(
+                hintText: "Cari...",
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
               ),
+              onChanged: filterLessons,
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : filteredLessons.isEmpty
+                  ? const Center(child: Text('Belum ada lesson'))
+                  : ListView.builder(
+                      itemCount: filteredLessons.length,
+                      itemBuilder: (context, index) {
+                        final lesson = filteredLessons[index];
+                        return ListTile(
+                          title: Text(lesson['title']),
+                          subtitle: Text(lesson['level']),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    LessonDetailPage(lesson: lesson),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
