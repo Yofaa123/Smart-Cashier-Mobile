@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/progress_provider.dart';
+import '../providers/lesson_provider.dart';
 
 class LessonDetailPage extends StatefulWidget {
   final Map lesson;
@@ -12,6 +13,14 @@ class LessonDetailPage extends StatefulWidget {
 }
 
 class _LessonDetailPageState extends State<LessonDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<LessonProvider>().fetchDifficulty(widget.lesson['id']);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,6 +41,57 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
             ),
             const SizedBox(height: 16),
             Text(widget.lesson['content']),
+            const SizedBox(height: 24),
+            Consumer<LessonProvider>(
+              builder: (context, lessonProvider, _) {
+                if (lessonProvider.isLoadingDifficulty) {
+                  return const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          SizedBox(width: 16),
+                          Text('Memuat prediksi...'),
+                        ],
+                      ),
+                    ),
+                  );
+                } else if (lessonProvider.error != null) {
+                  return const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text('Gagal memuat prediksi'),
+                    ),
+                  );
+                } else if (lessonProvider.difficulty != null &&
+                    lessonProvider.score != null) {
+                  final percentage = (lessonProvider.score! * 100).round();
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Prediksi Kesulitan',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 8),
+                          Text('${lessonProvider.difficulty} (${percentage}%)'),
+                        ],
+                      ),
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
             const SizedBox(height: 32),
             Consumer<ProgressProvider>(
               builder: (context, progressProvider, _) {
