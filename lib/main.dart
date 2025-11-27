@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/progress_provider.dart';
 import 'providers/lesson_provider.dart';
+import 'providers/theme_provider.dart';
 import 'pages/login_page.dart';
 
 void main() {
@@ -19,11 +20,18 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProgressProvider()),
         ChangeNotifierProvider(create: (_) => LessonProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: const LoginPage(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            themeMode: themeProvider.isDark ? ThemeMode.dark : ThemeMode.light,
+            theme: ThemeData.light(),
+            darkTheme: ThemeData.dark(),
+            home: const LoginPage(),
+          );
+        },
       ),
     );
   }
