@@ -5,6 +5,7 @@ import '../providers/theme_provider.dart';
 import 'subjects_page.dart';
 import 'recommendation_page.dart';
 import 'profile_page.dart';
+import 'recent_activity_page.dart';
 import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -101,6 +102,16 @@ class HomeContent extends StatelessWidget {
           onTap: () {
             // Navigate or set index
           },
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RecentActivityPage()),
+            );
+          },
+          child: const Text("Recent Activity"),
         ),
       ],
     );
