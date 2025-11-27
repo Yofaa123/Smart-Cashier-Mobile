@@ -149,4 +149,54 @@ class AuthProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  // ============================================================
+  //                        FETCH PROFILE
+  // ============================================================
+  Future<String?> fetchProfile() async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final data = await AuthService().getProfile();
+
+      user = UserModel.fromJson(data['user']);
+
+      isLoading = false;
+      notifyListeners();
+
+      return null;
+    } catch (e) {
+      isLoading = false;
+      notifyListeners();
+      return e.toString();
+    }
+  }
+
+  // ============================================================
+  //                      UPDATE PROFILE
+  // ============================================================
+  Future<String?> updateProfile(
+    String name,
+    String email,
+    String? password,
+  ) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final data = await AuthService().updateProfile(name, email, password);
+
+      user = UserModel.fromJson(data['user']);
+
+      isLoading = false;
+      notifyListeners();
+
+      return null;
+    } catch (e) {
+      isLoading = false;
+      notifyListeners();
+      return e.toString();
+    }
+  }
 }
