@@ -80,64 +80,204 @@ class _LessonsPageState extends State<LessonsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Lessons')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: searchController,
-              decoration: const InputDecoration(
-                hintText: "Cari...",
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(),
+      appBar: AppBar(
+        title: const Text('Pelajaran'),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Daftar Pelajaran',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
-              onChanged: filterLessons,
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : filteredLessons.isEmpty
-                  ? const Center(child: Text('Belum ada lesson'))
-                  : ListView.builder(
-                      itemCount: filteredLessons.length,
-                      itemBuilder: (context, index) {
-                        final lesson = filteredLessons[index];
-                        return ListTile(
-                          title: Text(lesson['title']),
-                          subtitle: Text(lesson['level']),
-                          trailing: Consumer<FavoriteProvider>(
-                            builder: (context, favoriteProvider, _) {
-                              final isFav = favoriteProvider.isFavorite(
-                                lesson['id'],
-                              );
-                              return IconButton(
-                                icon: Icon(
-                                  isFav
-                                      ? Icons.bookmark
-                                      : Icons.bookmark_border,
-                                ),
-                                onPressed: () {
-                                  favoriteProvider.toggleFavorite(lesson['id']);
-                                },
-                              );
-                            },
-                          ),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    LessonDetailPage(lesson: lesson),
-                              ),
-                            );
-                          },
-                        );
-                      },
+              const SizedBox(height: 8),
+              Text(
+                'Pilih pelajaran yang ingin dipelajari',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: "Cari pelajaran...",
+                    prefixIcon: const Icon(Icons.search),
+                    border: InputBorder.none,
+                    filled: false,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 16,
                     ),
-            ),
-          ],
+                  ),
+                  onChanged: filterLessons,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : filteredLessons.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.library_books,
+                              size: 64,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Belum ada pelajaran',
+                              style: Theme.of(context).textTheme.bodyLarge
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: filteredLessons.length,
+                        itemBuilder: (context, index) {
+                          final lesson = filteredLessons[index];
+                          return Card(
+                            elevation: 2,
+                            margin: const EdgeInsets.only(bottom: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.all(16),
+                              leading: CircleAvatar(
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primaryContainer,
+                                child: Icon(
+                                  Icons.library_books,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                              title: Text(
+                                lesson['title'],
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    lesson['level'],
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.access_time,
+                                        size: 14,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '15 menit',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              trailing: Consumer<FavoriteProvider>(
+                                builder: (context, favoriteProvider, _) {
+                                  final isFav = favoriteProvider.isFavorite(
+                                    lesson['id'],
+                                  );
+                                  return IconButton(
+                                    icon: Icon(
+                                      isFav
+                                          ? Icons.bookmark
+                                          : Icons.bookmark_border,
+                                      color: isFav
+                                          ? Theme.of(
+                                              context,
+                                            ).colorScheme.primary
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.onSurfaceVariant,
+                                    ),
+                                    onPressed: () {
+                                      favoriteProvider.toggleFavorite(
+                                        lesson['id'],
+                                      );
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            isFav
+                                                ? 'Dihapus dari bookmark'
+                                                : 'Ditambahkan ke bookmark',
+                                          ),
+                                          backgroundColor: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        LessonDetailPage(lesson: lesson),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );
