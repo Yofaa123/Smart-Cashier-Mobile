@@ -71,4 +71,24 @@ class AuthService {
 
     throw Exception(errorData['message'] ?? "Registration failed");
   }
+
+  Future<void> sendResetPassword(String email) async {
+    final url = Uri.parse("${ApiConfig.baseUrl}/forgot-password");
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      return;
+    }
+
+    final data = jsonDecode(response.body);
+    throw Exception(data['message'] ?? "Gagal mengirim link reset password");
+  }
 }
