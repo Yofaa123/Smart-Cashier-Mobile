@@ -36,6 +36,61 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
     return null;
   }
 
+  Widget _buildCustomTextField({
+    required TextEditingController controller,
+    required String labelText,
+    required String hintText,
+    required IconData prefixIcon,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+    TextInputType keyboardType = TextInputType.text,
+    int? maxLength,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFD0D0D0), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
+        validator: validator,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        style: const TextStyle(fontSize: 16, color: Color(0xFF333333)),
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintText: hintText,
+          prefixIcon: Icon(prefixIcon, color: const Color(0xFF666666)),
+          suffixIcon: suffixIcon,
+          border: InputBorder.none,
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 18,
+          ),
+          labelStyle: const TextStyle(color: Color(0xFF666666)),
+          hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
+          counterText: '',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,24 +154,14 @@ class _VerifyOtpPageState extends State<VerifyOtpPage> {
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
                       children: [
-                        TextFormField(
+                        _buildCustomTextField(
                           controller: otpController,
-                          decoration: const InputDecoration(
-                            labelText: 'Kode OTP (6 digit)',
-                            prefixIcon: Icon(Icons.pin),
-                            border: InputBorder.none,
-                            filled: false,
-                          ),
+                          labelText: 'Kode OTP (6 digit)',
+                          hintText: 'Masukkan 6 digit kode OTP',
+                          prefixIcon: Icons.pin,
                           keyboardType: TextInputType.number,
                           maxLength: 6,
                           validator: _validateOtp,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 8,
-                          ),
                         ),
 
                         const SizedBox(height: 32),

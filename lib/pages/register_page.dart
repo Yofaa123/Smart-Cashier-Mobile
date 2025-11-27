@@ -19,6 +19,61 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
+  Widget _buildCustomTextField({
+    required TextEditingController controller,
+    required String labelText,
+    required String hintText,
+    required IconData prefixIcon,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+    TextInputType keyboardType = TextInputType.text,
+    int? maxLength,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFD0D0D0), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
+        validator: validator,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        style: const TextStyle(fontSize: 16, color: Color(0xFF333333)),
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintText: hintText,
+          prefixIcon: Icon(prefixIcon, color: const Color(0xFF666666)),
+          suffixIcon: suffixIcon,
+          border: InputBorder.none,
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 18,
+          ),
+          labelStyle: const TextStyle(color: Color(0xFF666666)),
+          hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
+          counterText: '',
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     nameController.dispose();
@@ -123,83 +178,69 @@ class _RegisterPageState extends State<RegisterPage> {
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
                       children: [
-                        TextFormField(
+                        _buildCustomTextField(
                           controller: nameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Nama Lengkap',
-                            prefixIcon: Icon(Icons.person),
-                            border: InputBorder.none,
-                            filled: false,
-                          ),
+                          labelText: 'Nama Lengkap',
+                          hintText: 'Masukkan nama lengkap Anda',
+                          prefixIcon: Icons.person,
                           validator: _validateName,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
                         const SizedBox(height: 16),
 
-                        TextFormField(
+                        _buildCustomTextField(
                           controller: emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            prefixIcon: Icon(Icons.email),
-                            border: InputBorder.none,
-                            filled: false,
-                          ),
+                          labelText: 'Email',
+                          hintText: 'Masukkan email Anda',
+                          prefixIcon: Icons.email,
                           keyboardType: TextInputType.emailAddress,
                           validator: _validateEmail,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
                         const SizedBox(height: 16),
 
-                        TextFormField(
+                        _buildCustomTextField(
                           controller: passwordController,
+                          labelText: 'Password',
+                          hintText: 'Masukkan password Anda',
+                          prefixIcon: Icons.lock,
                           obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            prefixIcon: const Icon(Icons.lock),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: const Color(0xFF666666),
                             ),
-                            border: InputBorder.none,
-                            filled: false,
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
                           ),
                           validator: _validatePassword,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
                         const SizedBox(height: 16),
 
-                        TextFormField(
+                        _buildCustomTextField(
                           controller: confirmPasswordController,
+                          labelText: 'Konfirmasi Password',
+                          hintText: 'Konfirmasi password Anda',
+                          prefixIcon: Icons.lock_outline,
                           obscureText: _obscureConfirmPassword,
-                          decoration: InputDecoration(
-                            labelText: 'Konfirmasi Password',
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureConfirmPassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _obscureConfirmPassword =
-                                      !_obscureConfirmPassword;
-                                });
-                              },
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: const Color(0xFF666666),
                             ),
-                            border: InputBorder.none,
-                            filled: false,
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
                           ),
                           validator: _validateConfirmPassword,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
 
                         const SizedBox(height: 32),

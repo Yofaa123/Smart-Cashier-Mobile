@@ -31,6 +31,61 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return null;
   }
 
+  Widget _buildCustomTextField({
+    required TextEditingController controller,
+    required String labelText,
+    required String hintText,
+    required IconData prefixIcon,
+    bool obscureText = false,
+    Widget? suffixIcon,
+    String? Function(String?)? validator,
+    TextInputType keyboardType = TextInputType.text,
+    int? maxLength,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFD0D0D0), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 8,
+            spreadRadius: 1,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
+        validator: validator,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        style: const TextStyle(fontSize: 16, color: Color(0xFF333333)),
+        decoration: InputDecoration(
+          labelText: labelText,
+          hintText: hintText,
+          prefixIcon: Icon(prefixIcon, color: const Color(0xFF666666)),
+          suffixIcon: suffixIcon,
+          border: InputBorder.none,
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Color(0xFF1E88E5), width: 2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 18,
+          ),
+          labelStyle: const TextStyle(color: Color(0xFF666666)),
+          hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
+          counterText: '',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,17 +140,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
                       children: [
-                        TextFormField(
+                        _buildCustomTextField(
                           controller: emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            prefixIcon: Icon(Icons.email),
-                            border: InputBorder.none,
-                            filled: false,
-                          ),
+                          labelText: 'Email',
+                          hintText: 'Masukkan email Anda',
+                          prefixIcon: Icons.email,
                           keyboardType: TextInputType.emailAddress,
                           validator: _validateEmail,
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
 
                         const SizedBox(height: 32),
