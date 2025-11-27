@@ -5,9 +5,12 @@ import '../services/auth_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   bool isLoading = false;
-  UserModel? user;
   String? token;
+  UserModel? user;
 
+  // ============================================================
+  //                        LOGIN
+  // ============================================================
   Future<String?> login(String email, String password) async {
     isLoading = true;
     notifyListeners();
@@ -24,15 +27,17 @@ class AuthProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
 
-      return null; // sukses
+      return null; // Tidak ada error
     } catch (e) {
       isLoading = false;
       notifyListeners();
-
-      return e.toString().replaceFirst("Exception: ", "");
+      return e.toString();
     }
   }
 
+  // ============================================================
+  //                        REGISTER
+  // ============================================================
   Future<String?> register(
     String name,
     String email,
@@ -59,15 +64,82 @@ class AuthProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
 
-      return null; // sukses
+      return null; // sukses -> tidak ada error
     } catch (e) {
       isLoading = false;
       notifyListeners();
-
-      return e.toString().replaceFirst("Exception: ", "");
+      return e.toString(); // kirim pesan error ke UI
     }
   }
 
+  // ============================================================
+  //                    REQUEST OTP (Forgot Password)
+  // ============================================================
+  Future<dynamic> requestOtp(String email) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final result = await AuthService().requestOtp(email);
+
+      isLoading = false;
+      notifyListeners();
+
+      return result; // return Map with debug_otp
+    } catch (e) {
+      isLoading = false;
+      notifyListeners();
+      return e.toString();
+    }
+  }
+
+  // ============================================================
+  //                        VERIFY OTP
+  // ============================================================
+  Future<String?> verifyOtp(String email, String otp) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      await AuthService().verifyOtp(email, otp);
+
+      isLoading = false;
+      notifyListeners();
+      return null;
+    } catch (e) {
+      isLoading = false;
+      notifyListeners();
+      return e.toString();
+    }
+  }
+
+  // ============================================================
+  //                    RESET PASSWORD
+  // ============================================================
+  Future<String?> resetPassword(
+    String email,
+    String otp,
+    String password,
+  ) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      await AuthService().resetPassword(email, otp, password);
+
+      isLoading = false;
+      notifyListeners();
+      return null;
+    } catch (e) {
+      isLoading = false;
+      notifyListeners();
+      return e.toString();
+    }
+  }
+
+  // ============================================================
+  //                          LOGOUT
+  // ============================================================
   Future<void> logout() async {
     user = null;
     token = null;
@@ -76,21 +148,5 @@ class AuthProvider extends ChangeNotifier {
     await prefs.remove('token');
 
     notifyListeners();
-  }
-
-  Future<String?> sendResetPassword(String email) async {
-    isLoading = true;
-    notifyListeners();
-
-    try {
-      await AuthService().sendResetPassword(email);
-      isLoading = false;
-      notifyListeners();
-      return null; // sukses
-    } catch (e) {
-      isLoading = false;
-      notifyListeners();
-      return e.toString().replaceFirst("Exception: ", "");
-    }
   }
 }

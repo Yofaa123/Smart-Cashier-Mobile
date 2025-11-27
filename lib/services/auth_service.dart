@@ -16,17 +16,15 @@ class AuthService {
       body: jsonEncode({'email': email, 'password': password}),
     );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+    final data = jsonDecode(response.body);
 
+    if (response.statusCode == 200) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', data['token']);
-
       return data;
     }
 
-    final errorData = jsonDecode(response.body);
-    throw Exception(errorData['message'] ?? "Login failed");
+    throw Exception(data['message'] ?? "Login gagal");
   }
 
   Future<Map<String, dynamic>> register(
@@ -51,29 +49,49 @@ class AuthService {
       }),
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final data = jsonDecode(response.body);
+    final data = jsonDecode(response.body);
 
+    if (response.statusCode == 200 || response.statusCode == 201) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', data['token']);
-
       return data;
     }
 
-    final errorData = jsonDecode(response.body);
-
-    if (errorData['errors'] != null) {
-      final firstKey = errorData['errors'].keys.first;
-      final firstMsg = errorData['errors'][firstKey][0];
-
+    if (data['errors'] != null) {
+      final firstKey = data['errors'].keys.first;
+      final firstMsg = data['errors'][firstKey][0];
       throw Exception(firstMsg);
     }
 
-    throw Exception(errorData['message'] ?? "Registration failed");
+    throw Exception(data['message'] ?? "Registration failed");
   }
 
-  Future<void> sendResetPassword(String email) async {
-    final url = Uri.parse("${ApiConfig.baseUrl}/forgot-password");
+  // ============================================================
+  //                PERBAIKAN DI SINI (PENTING)
+  // ============================================================
+  Future<Map<String, dynamic>> requestOtp(String email) async {
+    final url = Uri.parse("${ApiConfig.baseUrl}/forgot-password/request-otp");
+
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+      body: jsonEncode({"email": email}),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return data; // <-- return MAP termasuk debug_otp
+    }
+
+    throw Exception(data["message"] ?? "Gagal mengirim OTP");
+  }
+
+  Future<void> verifyOtp(String email, String otp) async {
+    final url = Uri.parse("${ApiConfig.baseUrl}/forgot-password/verify-otp");
 
     final response = await http.post(
       url,
@@ -81,14 +99,37 @@ class AuthService {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: jsonEncode({'email': email}),
+      body: jsonEncode({'email': email, 'otp': otp}),
     );
 
-    if (response.statusCode == 200) {
-      return;
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode != 200) {
+      throw Exception(data['message'] ?? "OTP salah");
     }
+  }
+
+  Future<void> resetPassword(String email, String otp, String password) async {
+    final url = Uri.parse("${ApiConfig.baseUrl}/forgot-password/reset");
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: jsonEncode({
+        'email': email,
+        'otp': otp,
+        'password': password,
+        'password_confirmation': password,
+      }),
+    );
 
     final data = jsonDecode(response.body);
-    throw Exception(data['message'] ?? "Gagal mengirim link reset password");
+
+    if (response.statusCode != 200) {
+      throw Exception(data['message'] ?? "Gagal reset password");
+    }
   }
 }

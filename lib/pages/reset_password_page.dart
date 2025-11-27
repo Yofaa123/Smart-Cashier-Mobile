@@ -3,23 +3,22 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'login_page.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class ResetPasswordPage extends StatefulWidget {
+  final String email;
+  final String otp;
+
+  const ResetPasswordPage({super.key, required this.email, required this.otp});
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<ResetPasswordPage> createState() => _ResetPasswordPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
+class _ResetPasswordPageState extends State<ResetPasswordPage> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
-    nameController.dispose();
-    emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
@@ -28,49 +27,39 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
+      appBar: AppBar(title: const Text("Reset Password")),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                border: OutlineInputBorder(),
-              ),
+            const Text(
+              "Masukkan password baru untuk akun Anda",
+              textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 16),
 
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             TextField(
               controller: passwordController,
               obscureText: true,
               decoration: const InputDecoration(
-                labelText: 'Password',
+                labelText: "Password Baru",
                 border: OutlineInputBorder(),
               ),
             ),
+
             const SizedBox(height: 16),
 
             TextField(
               controller: confirmPasswordController,
               obscureText: true,
               decoration: const InputDecoration(
-                labelText: 'Confirm Password',
+                labelText: "Konfirmasi Password",
                 border: OutlineInputBorder(),
               ),
             ),
+
             const SizedBox(height: 32),
 
             Consumer<AuthProvider>(
@@ -79,23 +68,33 @@ class _RegisterPageState extends State<RegisterPage> {
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
                         onPressed: () async {
-                          if (passwordController.text !=
-                              confirmPasswordController.text) {
+                          final pass = passwordController.text.trim();
+                          final confirm = confirmPasswordController.text.trim();
+
+                          if (pass.length < 8) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Password minimal 8 karakter"),
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (pass != confirm) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text(
-                                  'Password dan konfirmasi password tidak cocok',
+                                  "Password dan konfirmasi tidak cocok",
                                 ),
                               ),
                             );
                             return;
                           }
 
-                          final error = await authProvider.register(
-                            nameController.text.trim(),
-                            emailController.text.trim(),
-                            passwordController.text,
-                            confirmPasswordController.text,
+                          final error = await authProvider.resetPassword(
+                            widget.email,
+                            widget.otp,
+                            pass,
                           );
 
                           if (!context.mounted) return;
@@ -103,17 +102,16 @@ class _RegisterPageState extends State<RegisterPage> {
                           if (error == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text(
-                                  'Berhasil mendaftar, silakan login',
-                                ),
+                                content: Text("Password berhasil direset"),
                               ),
                             );
 
-                            Navigator.pushReplacement(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => const LoginPage(),
                               ),
+                              (route) => false,
                             );
                           } else {
                             ScaffoldMessenger.of(
@@ -121,21 +119,9 @@ class _RegisterPageState extends State<RegisterPage> {
                             ).showSnackBar(SnackBar(content: Text(error)));
                           }
                         },
-                        child: const Text('REGISTER'),
+                        child: const Text("RESET PASSWORD"),
                       );
               },
-            ),
-
-            const SizedBox(height: 16),
-
-            TextButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                );
-              },
-              child: const Text('Sudah punya akun? Login'),
             ),
           ],
         ),

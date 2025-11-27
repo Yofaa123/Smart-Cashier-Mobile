@@ -1,44 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'verify_otp_page.dart';
+import 'reset_password_page.dart';
 
-class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({super.key});
+class VerifyOtpPage extends StatefulWidget {
+  final String email;
+  final String otp;
+
+  const VerifyOtpPage({super.key, required this.email, required this.otp});
 
   @override
-  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+  State<VerifyOtpPage> createState() => _VerifyOtpPageState();
 }
 
-class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
-  final emailController = TextEditingController();
+class _VerifyOtpPageState extends State<VerifyOtpPage> {
+  final otpController = TextEditingController();
 
   @override
   void dispose() {
-    emailController.dispose();
+    otpController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Lupa Password")),
+      appBar: AppBar(title: const Text("Verifikasi OTP")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              "Masukkan email untuk menerima kode OTP reset password.",
+            Text(
+              "Kode OTP telah dikirim ke email:\n${widget.email}",
               textAlign: TextAlign.center,
             ),
+
             const SizedBox(height: 24),
 
             TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
+              controller: otpController,
+              keyboardType: TextInputType.number,
+              maxLength: 6,
               decoration: const InputDecoration(
-                labelText: "Email",
+                labelText: "Kode OTP",
                 border: OutlineInputBorder(),
               ),
             ),
@@ -51,40 +56,41 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
                         onPressed: () async {
-                          final email = emailController.text.trim();
+                          final otp = otpController.text.trim();
 
-                          if (email.isEmpty) {
+                          if (otp.length != 6) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("Email wajib diisi"),
+                                content: Text("OTP harus 6 digit angka"),
                               ),
                             );
                             return;
                           }
 
-                          final result = await authProvider.requestOtp(email);
+                          final error = await authProvider.verifyOtp(
+                            widget.email,
+                            otp,
+                          );
 
                           if (!context.mounted) return;
 
-                          if (result is Map<String, dynamic>) {
-                            final otp = result['debug_otp']?.toString() ?? '';
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Kode OTP: $otp")),
-                            );
-                            Navigator.push(
+                          if (error == null) {
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (_) =>
-                                    VerifyOtpPage(email: email, otp: otp),
+                                builder: (_) => ResetPasswordPage(
+                                  email: widget.email,
+                                  otp: otp,
+                                ),
                               ),
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(result.toString())),
-                            );
+                            ScaffoldMessenger.of(
+                              context,
+                            ).showSnackBar(SnackBar(content: Text(error)));
                           }
                         },
-                        child: const Text("KIRIM OTP"),
+                        child: const Text("VERIFIKASI OTP"),
                       );
               },
             ),

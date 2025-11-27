@@ -36,15 +36,17 @@ class _LoginPageState extends State<LoginPage> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 32),
+
             TextField(
               controller: emailController,
-              keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
                 labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
+              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 16),
+
             TextField(
               controller: passwordController,
               obscureText: true,
@@ -53,6 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                 border: OutlineInputBorder(),
               ),
             ),
+
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -67,17 +70,22 @@ class _LoginPageState extends State<LoginPage> {
                 child: const Text("Lupa password?"),
               ),
             ),
-            const SizedBox(height: 32),
+
+            const SizedBox(height: 16),
+
             Consumer<AuthProvider>(
-              builder: (context, authProvider, child) {
+              builder: (context, authProvider, _) {
                 return authProvider.isLoading
                     ? const CircularProgressIndicator()
                     : ElevatedButton(
                         onPressed: () async {
                           final error = await authProvider.login(
                             emailController.text.trim(),
-                            passwordController.text,
+                            passwordController.text.trim(),
                           );
+
+                          if (!context.mounted) return;
+
                           if (error == null) {
                             Navigator.pushReplacement(
                               context,
@@ -97,6 +105,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
 
             const SizedBox(height: 16),
+
             TextButton(
               onPressed: () {
                 Navigator.push(
