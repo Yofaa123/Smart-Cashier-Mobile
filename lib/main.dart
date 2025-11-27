@@ -4,6 +4,7 @@ import 'providers/auth_provider.dart';
 import 'providers/progress_provider.dart';
 import 'providers/lesson_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/favorite_provider.dart';
 import 'pages/login_page.dart';
 
 void main() {
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProgressProvider()),
         ChangeNotifierProvider(create: (_) => LessonProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => FavoriteProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {

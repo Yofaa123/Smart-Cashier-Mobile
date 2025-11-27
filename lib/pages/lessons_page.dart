@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../providers/auth_provider.dart';
+import '../providers/favorite_provider.dart';
 import '../config/api.dart';
 import 'lesson_detail_page.dart';
 
@@ -25,6 +26,9 @@ class _LessonsPageState extends State<LessonsPage> {
   void initState() {
     super.initState();
     fetchLessons();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<FavoriteProvider>().fetchFavorites();
+    });
   }
 
   @override
@@ -103,6 +107,23 @@ class _LessonsPageState extends State<LessonsPage> {
                         return ListTile(
                           title: Text(lesson['title']),
                           subtitle: Text(lesson['level']),
+                          trailing: Consumer<FavoriteProvider>(
+                            builder: (context, favoriteProvider, _) {
+                              final isFav = favoriteProvider.isFavorite(
+                                lesson['id'],
+                              );
+                              return IconButton(
+                                icon: Icon(
+                                  isFav
+                                      ? Icons.bookmark
+                                      : Icons.bookmark_border,
+                                ),
+                                onPressed: () {
+                                  favoriteProvider.toggleFavorite(lesson['id']);
+                                },
+                              );
+                            },
+                          ),
                           onTap: () {
                             Navigator.push(
                               context,

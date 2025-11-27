@@ -6,6 +6,7 @@ import 'subjects_page.dart';
 import 'recommendation_page.dart';
 import 'profile_page.dart';
 import 'recent_activity_page.dart';
+import 'favorite_page.dart';
 import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -112,6 +113,16 @@ class HomeContent extends StatelessWidget {
             );
           },
           child: const Text("Recent Activity"),
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const FavoritePage()),
+            );
+          },
+          child: const Text("Bookmark Saya"),
         ),
       ],
     );
