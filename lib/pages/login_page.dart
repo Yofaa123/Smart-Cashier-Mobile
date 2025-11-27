@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../services/notification_service.dart';
 import 'home_page.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
@@ -87,6 +88,7 @@ class _LoginPageState extends State<LoginPage> {
                           if (!context.mounted) return;
 
                           if (error == null) {
+                            NotificationService.scheduleDailyReminder();
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(

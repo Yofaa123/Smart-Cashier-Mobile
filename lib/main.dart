@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'services/notification_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/progress_provider.dart';
 import 'providers/lesson_provider.dart';
@@ -8,7 +9,9 @@ import 'providers/favorite_provider.dart';
 import 'providers/gamification_provider.dart';
 import 'pages/login_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.initialize();
   runApp(const MyApp());
 }
 

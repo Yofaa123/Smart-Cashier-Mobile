@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/notification_service.dart';
 import 'subjects_page.dart';
 import 'recommendation_page.dart';
 import 'profile_page.dart';
@@ -86,9 +87,14 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class HomeContent extends StatelessWidget {
+class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
 
+  @override
+  State<HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -134,6 +140,34 @@ class HomeContent extends StatelessWidget {
             );
           },
           child: const Text("Gamification"),
+        ),
+        const SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () {
+            NotificationService.showInstantNotification(
+              'Tes Notifikasi',
+              'Ini adalah notifikasi tes.',
+            );
+          },
+          child: const Text("Tes Notifikasi"),
+        ),
+        const SizedBox(height: 16),
+        FutureBuilder<bool>(
+          future: NotificationService.isReminderEnabled(),
+          builder: (context, snapshot) {
+            final enabled = snapshot.data ?? true;
+            return ElevatedButton(
+              onPressed: () async {
+                await NotificationService.toggleReminder(!enabled);
+                setState(() {}); // Refresh
+              },
+              child: Text(
+                enabled
+                    ? "Matikan Pengingat Belajar"
+                    : "Aktifkan Pengingat Belajar",
+              ),
+            );
+          },
         ),
       ],
     );
