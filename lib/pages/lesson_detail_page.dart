@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../providers/auth_provider.dart';
-import '../config/api.dart';
+import '../providers/progress_provider.dart';
 
 class LessonDetailPage extends StatefulWidget {
   final Map lesson;
@@ -15,28 +12,6 @@ class LessonDetailPage extends StatefulWidget {
 }
 
 class _LessonDetailPageState extends State<LessonDetailPage> {
-  Future<void> markComplete() async {
-    final token = context.read<AuthProvider>().token;
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/progress/complete'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: jsonEncode({'lesson_id': widget.lesson['id']}),
-    );
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lesson berhasil diselesaikan')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal menyelesaikan lesson')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,13 +32,37 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
             ),
             const SizedBox(height: 16),
             Text(widget.lesson['content']),
+            const SizedBox(height: 32),
+            Consumer<ProgressProvider>(
+              builder: (context, progressProvider, _) {
+                return progressProvider.isLoading
+                    ? const CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: () async {
+                          final success = await progressProvider.markComplete(
+                            widget.lesson['id'],
+                          );
+                          if (!context.mounted) return;
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Progress tersimpan'),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Gagal menyimpan progress'),
+                              ),
+                            );
+                          }
+                        },
+                        child: const Text('Tandai Selesai'),
+                      );
+              },
+            ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: markComplete,
-        icon: const Icon(Icons.check),
-        label: const Text('Tandai Selesai'),
       ),
     );
   }
