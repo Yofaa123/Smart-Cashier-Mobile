@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../providers/auth_provider.dart';
+import '../providers/bookmark_provider.dart';
 import '../config/api.dart';
+import '../models/subject.dart';
 import 'lessons_page.dart';
 
 class SubjectsPage extends StatefulWidget {
@@ -141,6 +143,11 @@ class _SubjectsPageState extends State<SubjectsPage> {
                       itemCount: filteredSubjects.length,
                       itemBuilder: (context, index) {
                         final subject = filteredSubjects[index];
+                        final bookmarkProvider = context
+                            .watch<BookmarkProvider>();
+                        final isBookmarked = bookmarkProvider.isBookmarked(
+                          subject['id'],
+                        );
                         return Card(
                           elevation: 2,
                           margin: const EdgeInsets.only(bottom: 12),
@@ -172,11 +179,53 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                     ).colorScheme.onSurfaceVariant,
                                   ),
                             ),
-                            trailing: Icon(
-                              Icons.arrow_forward_ios,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(
+                                    isBookmarked
+                                        ? Icons.bookmark
+                                        : Icons.bookmark_border,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
+                                  onPressed: () {
+                                    if (isBookmarked) {
+                                      bookmarkProvider.removeBookmark(
+                                        subject['id'],
+                                      );
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Bookmark dihapus'),
+                                        ),
+                                      );
+                                    } else {
+                                      bookmarkProvider.addBookmark(
+                                        SubjectModel.fromJson(subject),
+                                      );
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Ditambahkan ke bookmark',
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                                Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                              ],
                             ),
                             onTap: () {
                               Navigator.push(
