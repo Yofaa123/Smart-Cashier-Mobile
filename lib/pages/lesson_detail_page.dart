@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/progress_provider.dart';
 import '../providers/lesson_provider.dart';
+import '../models/lesson.dart';
+import 'lesson_content_page.dart';
 
 class LessonDetailPage extends StatefulWidget {
-  final Map lesson;
+  final LessonModel lesson;
 
   const LessonDetailPage({super.key, required this.lesson});
 
@@ -17,7 +19,7 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LessonProvider>().fetchDifficulty(widget.lesson['id']);
+      context.read<LessonProvider>().fetchDifficulty(widget.lesson.id);
     });
   }
 
@@ -64,7 +66,7 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  widget.lesson['title'],
+                                  widget.lesson.title,
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineSmall
@@ -83,7 +85,7 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    widget.lesson['level'],
+                                    widget.lesson.level,
                                     style: Theme.of(context).textTheme.bodySmall
                                         ?.copyWith(
                                           color: Theme.of(
@@ -114,18 +116,68 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
               ),
               const SizedBox(height: 16),
 
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    widget.lesson['content'],
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyLarge?.copyWith(height: 1.6),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LessonContentPage(lesson: widget.lesson),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.article,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Baca Materi Lengkap',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
+                            ),
+                            const Spacer(),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 16,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          widget.lesson.content.length > 150
+                              ? '${widget.lesson.content.substring(0, 150)}...'
+                              : widget.lesson.content,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                height: 1.6,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -267,7 +319,7 @@ class _LessonDetailPageState extends State<LessonDetailPage> {
                         : ElevatedButton.icon(
                             onPressed: () async {
                               final success = await progressProvider
-                                  .markComplete(widget.lesson['id']);
+                                  .markComplete(widget.lesson.id);
                               if (!context.mounted) return;
                               if (success) {
                                 ScaffoldMessenger.of(context).showSnackBar(

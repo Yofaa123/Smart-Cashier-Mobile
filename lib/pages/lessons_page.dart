@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../providers/auth_provider.dart';
-import '../providers/favorite_provider.dart';
+import '../providers/bookmark_provider.dart';
+import '../models/lesson.dart';
 import '../config/api.dart';
 import 'lesson_detail_page.dart';
 
@@ -27,7 +28,7 @@ class _LessonsPageState extends State<LessonsPage> {
     super.initState();
     fetchLessons();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<FavoriteProvider>().fetchFavorites();
+      context.read<BookmarkProvider>().fetchLessonBookmarks();
     });
   }
 
@@ -222,52 +223,61 @@ class _LessonsPageState extends State<LessonsPage> {
                                   ),
                                 ],
                               ),
-                              trailing: Consumer<FavoriteProvider>(
-                                builder: (context, favoriteProvider, _) {
-                                  final isFav = favoriteProvider.isFavorite(
-                                    lesson['id'],
+                              trailing: IconButton(
+                                icon: Icon(
+                                  context
+                                          .watch<BookmarkProvider>()
+                                          .isLessonBookmarked(lesson['id'])
+                                      ? Icons.bookmark
+                                      : Icons.bookmark_border,
+                                  color:
+                                      context
+                                          .watch<BookmarkProvider>()
+                                          .isLessonBookmarked(lesson['id'])
+                                      ? Theme.of(context).colorScheme.primary
+                                      : Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                ),
+                                onPressed: () async {
+                                  final bookmarkProvider = context
+                                      .read<BookmarkProvider>();
+                                  final isBookmarked = bookmarkProvider
+                                      .isLessonBookmarked(lesson['id']);
+                                  // Create LessonModel, need subjectName - for now use placeholder
+                                  final lessonModel = LessonModel(
+                                    id: lesson['id'],
+                                    subjectId: widget.subjectId,
+                                    title: lesson['title'],
+                                    content: lesson['content'] ?? '',
+                                    level: lesson['level'],
+                                    duration: '15 menit',
+                                    subjectName:
+                                        'Mata Pelajaran', // TODO: pass subject name from SubjectsPage
                                   );
-                                  return IconButton(
-                                    icon: Icon(
-                                      isFav
-                                          ? Icons.bookmark
-                                          : Icons.bookmark_border,
-                                      color: isFav
-                                          ? Theme.of(
-                                              context,
-                                            ).colorScheme.primary
-                                          : Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
+                                  await bookmarkProvider.toggleLessonBookmark(
+                                    lessonModel,
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        isBookmarked
+                                            ? 'Dihapus dari bookmark'
+                                            : 'Ditambahkan ke bookmark',
+                                      ),
                                     ),
-                                    onPressed: () {
-                                      favoriteProvider.toggleFavorite(
-                                        lesson['id'],
-                                      );
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            isFav
-                                                ? 'Dihapus dari bookmark'
-                                                : 'Ditambahkan ke bookmark',
-                                          ),
-                                          backgroundColor: Theme.of(
-                                            context,
-                                          ).colorScheme.primary,
-                                        ),
-                                      );
-                                    },
                                   );
                                 },
                               ),
                               onTap: () {
+                                final lessonModel = LessonModel.fromJson(
+                                  lesson,
+                                );
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (_) =>
-                                        LessonDetailPage(lesson: lesson),
+                                        LessonDetailPage(lesson: lessonModel),
                                   ),
                                 );
                               },

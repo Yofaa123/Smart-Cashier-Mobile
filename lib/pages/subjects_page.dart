@@ -25,6 +25,9 @@ class _SubjectsPageState extends State<SubjectsPage> {
   void initState() {
     super.initState();
     fetchSubjects();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BookmarkProvider>().fetchSubjectBookmarks();
+    });
   }
 
   @override
@@ -145,9 +148,8 @@ class _SubjectsPageState extends State<SubjectsPage> {
                         final subject = filteredSubjects[index];
                         final bookmarkProvider = context
                             .watch<BookmarkProvider>();
-                        final isBookmarked = bookmarkProvider.isBookmarked(
-                          subject['id'],
-                        );
+                        final isBookmarked = bookmarkProvider
+                            .isSubjectBookmarked(subject['id']);
                         return Card(
                           elevation: 2,
                           margin: const EdgeInsets.only(bottom: 12),
@@ -191,32 +193,20 @@ class _SubjectsPageState extends State<SubjectsPage> {
                                       context,
                                     ).colorScheme.primary,
                                   ),
-                                  onPressed: () {
-                                    if (isBookmarked) {
-                                      bookmarkProvider.removeBookmark(
-                                        subject['id'],
-                                      );
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Bookmark dihapus'),
+                                  onPressed: () async {
+                                    await bookmarkProvider
+                                        .toggleSubjectBookmark(
+                                          SubjectModel.fromJson(subject),
+                                        );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          isBookmarked
+                                              ? 'Dihapus dari bookmark'
+                                              : 'Ditambahkan ke bookmark',
                                         ),
-                                      );
-                                    } else {
-                                      bookmarkProvider.addBookmark(
-                                        SubjectModel.fromJson(subject),
-                                      );
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            'Ditambahkan ke bookmark',
-                                          ),
-                                        ),
-                                      );
-                                    }
+                                      ),
+                                    );
                                   },
                                 ),
                                 Icon(
