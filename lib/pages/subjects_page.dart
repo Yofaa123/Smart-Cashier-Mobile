@@ -21,6 +21,21 @@ class _SubjectsPageState extends State<SubjectsPage> {
   bool isLoading = true;
   final searchController = TextEditingController();
 
+  String getSubjectImage(String name) {
+    switch (name.toLowerCase()) {
+      case "matematika":
+        return "assets/images/subjects/matematika.jpeg";
+      case "bahasa inggris":
+        return "assets/images/subjects/bahasa_inggris.jpg";
+      case "ipa":
+        return "assets/images/subjects/ipa.jpeg";
+      case "teknologi":
+        return "assets/images/subjects/teknologi.png";
+      default:
+        return "assets/images/subjects/default.jpg";
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -158,13 +173,17 @@ class _SubjectsPageState extends State<SubjectsPage> {
                           ),
                           child: ListTile(
                             contentPadding: const EdgeInsets.all(16),
-                            leading: CircleAvatar(
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.primaryContainer,
-                              child: Icon(
-                                Icons.book,
-                                color: Theme.of(context).colorScheme.primary,
+                            leading: Container(
+                              width: 55,
+                              height: 55,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                image: DecorationImage(
+                                  image: AssetImage(
+                                    getSubjectImage(subject['name']),
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                             title: Text(
