@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:timeago/timeago.dart' as timeago;
 import 'services/notification_service.dart';
 import 'providers/auth_provider.dart';
 import 'providers/progress_provider.dart';
@@ -7,6 +8,7 @@ import 'providers/lesson_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/favorite_provider.dart';
 import 'providers/bookmark_provider.dart';
+import 'providers/activity_provider.dart';
 import 'providers/gamification_provider.dart';
 import 'providers/navigation_provider.dart';
 import 'pages/login_page.dart';
@@ -14,6 +16,7 @@ import 'pages/login_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await NotificationService.initialize();
+  timeago.setLocaleMessages('id', timeago.IdMessages());
   runApp(const MyApp());
 }
 
@@ -30,6 +33,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => FavoriteProvider()),
         ChangeNotifierProvider(create: (_) => BookmarkProvider()),
+        ChangeNotifierProvider(create: (_) => ActivityProvider()),
         ChangeNotifierProvider(create: (_) => GamificationProvider()),
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
       ],

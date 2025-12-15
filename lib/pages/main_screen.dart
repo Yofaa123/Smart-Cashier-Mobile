@@ -5,7 +5,7 @@ import '../providers/theme_provider.dart';
 import '../providers/auth_provider.dart';
 import 'home_page.dart';
 import 'subjects_page.dart';
-import 'recent_activity_page.dart';
+import 'activity_page.dart';
 import 'favorite_page.dart';
 import 'gamification_page.dart';
 import 'profile_page.dart';
@@ -22,7 +22,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     const HomePage(),
     const SubjectsPage(),
-    const RecentActivityPage(),
+    const ActivityPage(),
     const FavoritePage(),
     const GamificationPage(),
   ];
